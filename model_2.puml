@@ -1,0 +1,47 @@
+@startuml
+
+start
+
+skinparam activity {
+    FontColor          white
+    FontSize           12
+    AttributeFontname  Arial Narrow
+    BackgroundColor    orange
+    BorderColor        green
+    ArrowColor         blue
+}
+
+:Step 1;
+:Step 2;
+:Step 3;
+split
+:Step 4;
+split again
+:Step 5;
+end split
+:Step 6;
+:Step 7;
+split
+:Step 8;
+split again
+:Step 9;
+split again
+:Step 10;
+:Step 11;
+split again
+:Step 12;
+split again
+:Step 13;
+end split
+:Step 14;
+:Step 15;
+if (Test) then (True)
+  :Step 16;
+  :step 17;
+else (False)
+  :error;
+  end
+endif
+stop
+
+@enduml
