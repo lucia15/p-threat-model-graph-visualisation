@@ -8,3 +8,8 @@
 
 ![plantuml](https://user-images.githubusercontent.com/8102313/96365538-f7a4f580-1149-11eb-9202-e4d111574253.png)
 
+### 3. Model 3
+
+![model 3](https://user-images.githubusercontent.com/8102313/96376687-1d052400-1189-11eb-93dc-829d44c93631.png)
+
+
