@@ -1,0 +1,110 @@
+@startuml "techtribesjs"
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Container.puml
+
+
+System_Ext(www,                     "WWW")
+
+System_Ext(third_party,             "Third Party NCFS")
+
+System(proxy_icap,                  "Proxy(ICAP)")
+
+Person(user,                        "User")
+
+System(transaction_event_score,     "Transaction Event Score")
+
+www                                 -down->  proxy_icap
+
+proxy_icap                          -down->  user
+
+
+System_Boundary(cluster_application,       "Application Cluster (k8s)"){
+
+Container(icap_service, "Icap Service", "Description of what the service does")
+
+System(original_store,              "Original Store")
+
+System(rebuilt_store,               "Rebuilt Store")
+
+System(adaptation_request,          "Adaptation Request")
+
+System(adaptation_outcome,          "Adaptation Outcome")
+
+System(adaptation_service,          "Adaptation Service")
+
+System(request_processing_pod,      "Request Processing Pod")
+
+Container(request_processing_pod,   "Request Processing Pod", "Description of what the pod does")
+
+System(transaction_event,           "Transaction Event")
+
+Container(event_submission_service, "Event Submission Service", "Description of what the service does")
+
+proxy_icap         	                -right-> 	icap_service
+
+Rel_U(adaptation_outcome, icap_service, "Function of the Class", "Technical Specs")
+
+adaptation_request	                -right->	adaptation_service
+
+adaptation_service	                -down->	  request_processing_pod
+
+icap_service		                    -right->	original_store
+
+icap_service		                    -down->		rebuilt_store
+
+Rel_U(icap_service, adaptation_request, "Action of the Class", "Technical Specs")
+
+original_store		                 -right->	  request_processing_pod
+
+request_processing_pod             ->		      adaptation_outcome
+
+request_processing_pod             ->		      rebuilt_store
+
+request_processing_pod             -down->		transaction_event
+
+Rel(transaction_event, event_submission_service, "Action", "Technical Specs")
+
+event_submission_service           -down->    transaction_event_score
+
+request_processing_pod             ->		      third_party
+
+}
+
+
+
+Boundary(administration,          "Administration Cluster(k8s)"){
+
+System(transaction_event_service, "Transaction Event Service")
+
+System(user_credentials,          "User Credentials")
+
+Container(management_console,     "Management Console", "Description of what the console does", "Tech Specs")
+
+transaction_event_score           -down->  transaction_event_service
+
+management_console                -up->    transaction_event_service
+
+management_console                -up->    user_credentials
+
+}
+
+
+Boundary(ncfs,                    "NCFS (Non - Compliant File Service) Cluster (k8S)"){
+
+System(reference_ncfs,            "Reference NCFS")
+
+System(ncfs_update_service,       "NCFS Update Service")
+
+System(ncfs_policy,               "NCFS Policy")
+
+ncfs_update_service               ->        ncfs_policy
+
+Rel_U(ncfs_policy, reference_ncfs, "Function of the Class", "Technical Specs")
+
+management_console                -up->     ncfs_update_service
+
+Rel(request_processing_pod, reference_ncfs, "Function of the Class", "Technical Specs")
+
+}
+
+
+@enduml

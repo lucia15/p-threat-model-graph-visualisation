@@ -1,0 +1,111 @@
+@startuml
+!include  <C4/C4_Context.puml>
+
+!include <office/Users/user.puml>
+
+LAYOUT_WITH_LEGEND()
+
+
+System_Ext(www,                     "WWW")
+
+System_Ext(third_party,             "Third Party NCFS")
+
+System(proxy_icap,                  "Proxy(ICAP)")
+
+Person(user,                        "User")
+
+System(transaction_event_score,     "Transaction Event Score")
+
+www                                 -down->  proxy_icap
+
+proxy_icap                          -down->  user
+
+
+Boundary(cluster_application,       "Application Cluster (k8s)"){
+
+System_Ext(icap_service,            "Icap Service")
+
+System(original_store,              "Original Store")
+
+System(rebuilt_store,               "Rebuilt Store")
+
+System(adaptation_request,          "Adaptation Request")
+
+System(adaptation_outcome,          "Adaptation Outcome")
+
+System(adaptation_service,          "Adaptation Service")
+
+System(request_processing_pod,      "Request Processing Pod")
+
+System(transaction_event,           "Transaction Event")
+
+System(event_submission_service,    "Event Submission Service")
+
+
+proxy_icap         	                -right-> 	icap_service
+
+adaptation_outcome 	                -up-> 		icap_service
+
+adaptation_request	                -right->	adaptation_service
+
+adaptation_service	                -down->	  request_processing_pod
+
+icap_service		                    -right->	original_store
+
+icap_service		                    -down->		rebuilt_store
+
+icap_service		                    -up->		  adaptation_request
+
+original_store		                 -right->	  request_processing_pod
+
+request_processing_pod             ->		      adaptation_outcome
+
+request_processing_pod             ->		      rebuilt_store
+
+request_processing_pod             -down->		transaction_event
+
+transaction_event	                 -down->		event_submission_service
+
+event_submission_service           -down->    transaction_event_score
+
+request_processing_pod             ->		      third_party
+
+}
+
+
+Boundary(administration,          "Administration Cluster(k8s)"){
+
+System(transaction_event_service, "Transaction Event Service")
+
+System(user_credentials,          "User Credentials")
+
+System(management_console,        "Management Console")
+
+transaction_event_score           -down->  transaction_event_service
+
+management_console                -up->    transaction_event_service
+
+management_console                -up->    user_credentials
+
+}
+
+
+Boundary(ncfs,                    "NCFS (Non - Compliant File Service) Cluster (k8S)"){
+
+System(reference_ncfs,            "Reference NCFS")
+
+System(ncfs_update_service,       "NCFS Update Service")
+
+System(ncfs_policy,               "NCFS Policy")
+
+ncfs_update_service               ->        ncfs_policy
+
+ncfs_policy                       -up->     reference_ncfs
+
+management_console                -up->     ncfs_update_service
+
+request_processing_pod            -down->		reference_ncfs
+
+}
+
+@enduml
