@@ -13,3 +13,9 @@
 ![model 3](https://user-images.githubusercontent.com/8102313/96376687-1d052400-1189-11eb-93dc-829d44c93631.png)
 
 
+### 4. Model 4
+
+![plantuml 4](https://user-images.githubusercontent.com/8102313/97110406-3c9ccf00-16ea-11eb-9ff3-d4575fc757bf.png)
+
+
+
