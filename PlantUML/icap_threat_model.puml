@@ -1,0 +1,112 @@
+@startuml
+skinparam defaultTextAlignment center
+!define ICONURL https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/v2.2.0
+!define AzurePuml https://raw.githubusercontent.com/RicardoNiepel/Azure-PlantUML/release/2-1/dist
+!define KubernetesPuml https://raw.githubusercontent.com/dcasati/kubernetes-PlantUML/master/dist
+
+!include <C4/C4_Context.puml>
+!include <office/Users/user.puml>
+!includeurl ICONURL/common.puml
+!includeurl ICONURL/font-awesome-5/user_cog.puml
+!includeurl ICONURL/font-awesome-5/user.puml
+
+!include <awslib/AWSCommon>
+!include <awslib/AWSSimplified.puml>
+!include <awslib/Compute/all.puml>
+!include <awslib/Storage/all.puml>
+!include <awslib/Database/all.puml>
+!include <awslib/general/all.puml>
+!include <awslib/MigrationAndTransfer/all.puml>
+!include <awslib/InternetOfThings/all.puml>
+!include <awslib/GroupIcons/all.puml>
+!include <awslib/Mobile/all.puml>
+!include <awslib/InternetOfThings/all.puml>
+!include <awslib/ARVR/Sumerian.puml>
+!include <awslib/ManagementAndGovernance/all.puml>
+!include <awslib/MachineLearning/all.puml>
+
+!includeurl AzurePuml/AzureCommon.puml
+!includeurl AzurePuml/AzureSimplified.puml
+!includeurl AzurePuml/Storage/all.puml
+
+!includeurl KubernetesPuml/kubernetes_Context.puml
+!includeurl KubernetesPuml/kubernetes_Simplified.puml
+!includeurl KubernetesPuml/OSS/KubernetesApi.puml
+
+Boundary(internet,                            "Internet Boundary"){
+  ServerMigrationService(web_server,          "\nWeb Server", " ")
+  IoTHTTPProtocol(web_proxy,                  "\nWeb Proxy", " ")
+  Client(browser_client,                      "\nBrowser Client", " ")
+  EFSFilesystem(config_file,                  "\nConfiguration File", " ")
+}
+
+
+ServerContents(icap_server,                   "\nICAP Server/Resource", " ")
+Database(local_store,                         "\nOriginal Local Store" ," ")
+APIGateway(proxy_app,                         "\nProxy API App" ," ")
+IoTSiteWise(archive_adaptation,               "\nArchive Adaptation Service" ," ")
+IoTDeviceManagement(archive_processing,       "\nArchive Processing Pod" ," ")
+
+Boundary(azure_files,                         "Azure Files"){
+AzureFileStorage(rebuilt_store,               "\nRebuilt Local Store" ," ")
+AzureFileStorage(network_store,               "\nOriginal Network Store" ," ")
+}
+
+IoTAnalyticsPipeline(request_q,               "\nRequest Queue" ," ")
+ServiceCatalog(adaptation_service,            "\nAdaptation Service" ," ")
+KubernetesApi(kubernetes,                     "\nKubernetes API" ," ")
+Database(config_store,                        "\nConfiguration Store" ," ")
+ManagedServices(policy_update,                "\nPolicy Update Service" ," ")
+
+Boundary(processing,                          "Untrusted File Processing"){
+  Sumerian(request_pod,                       "\nRequest Processing Pod", " ")
+}
+
+Boundary(trust,                               "NCFS Trust Boundary"){
+  ECSService(non_compliant,                   "\nNon-Compliant File Service" ," ")
+}
+
+Boundary(administration,                      "System Administration Boundary"){
+  Database(transaction_store,                 "\nTransaction Event Store" ," ")
+  ServiceCatalog(transaction_service,         "\nTransaction Event Service" ," ")
+  Personalize(management_console,             "\nManagement Console" ," ")
+  FA5_USER_COG(admin,                           Administrator) #Orange
+}
+
+Boundary(userb,                               "User Boundary"){
+  FA5_USER(user,                               User) #Yellow
+  Snowball(file_drop,                         "\nFile Drop UI" ," ")
+    Boundary(analysis,                        "Untrusted File Processing"){
+      ServiceCatalog(analysis_service,        "\nAnalysis Service" ," ")
+    }
+}
+
+web_proxy                   <-up->              web_server          :HTTP Request/Response
+web_proxy                   <-down->            browser_client      :HTTP Request/Response
+config_file                 ->                  web_proxy           :Read
+web_proxy                   <->                 icap_server         :ICAP Request/Response
+icap_server                 ->                  local_store         :Write
+local_store                 ->                  proxy_app           :Read
+icap_server                 ->                  proxy_app           :CLI Parameters/Exit Code
+proxy_app                   -down->             rebuilt_store       :Write
+rebuilt_store               ->                  icap_server         :Read
+proxy_app                   ->                  request_q           :Adaptation Request
+proxy_app                   -down->             network_store       :Write
+request_q                   ->                  adaptation_service  :Adaptation Request
+adaptation_service          -down->             kubernetes          :API Call
+kubernetes                  -down->             request_pod         :Spawn with Filename
+request_pod                 <->                 non_compliant       :File Content/Repalce
+config_store                -up->               request_pod         :Read
+policy_update               ->                  config_store        :Write
+request_pod                 -down->             transaction_store   :Write
+transaction_store           ->                  transaction_service :Read
+transaction_service         <-->                management_console  :Query/Transactions
+management_console          ->                  policy_update       :Content Policy Update
+analysis_service            <-up->              file_drop           :Files/Analysis Reports
+file_drop                   -up->               management_console  :Included In
+archive_processing          -up->               rebuilt_store
+archive_processing          -up->               network_store
+request_pod                 ->                  archive_adaptation  :Request
+archive_adaptation          -->                 archive_processing
+
+@enduml
