@@ -80,11 +80,17 @@ $ vi jupyter_notebook_config.py
 Insert the following block  of code
 
 c = get_config()
+
 c.IPKernelApp.pylab = 'inline'  # if you want plotting support always in your notebook
+
 c.NotebookApp.certfile = u'/home/ubuntu/certs/my_key.pem' #location of your certificate file
+
 c.NotebookApp.ip = '0.0.0.0'
+
 c.NotebookApp.open_browser = False  #so that the ipython notebook does not opens up a browser by default
+
 c.NotebookApp.password = u'sha1:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'  #the encrypted password we saved in Step 12 above, Set the port to 8888, the port we set up in the AWS EC2 set-up
+
 c.NotebookApp.port = 8888
 
 Save and Exit.
