@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+</html>
+    <head>
+        <meta charset="utf-8"/>
+        <title>No Hierarchy</title>
+        <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+	      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.js"></script>
+        <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.css">
+    </head>
+
+    <body>
+	      <p>No Hierarchy</p>
+	      <div id="mynetwork3"> </div>
+
+	      <!-- Add an invisible <div> element to the document, to hold the JSON data: -->
+        <div id="networkJSON-results" class="results" style="display:none"></div>
+
+	      <script type="text/javascript">
+            var SHAPE = "circle", //"box", //"square"
+                SHAPE2 = "box",
+                BLUE = "#99CDFF",
+                YELLOW = "#FEEBA7",
+                GREEN = "#C6E7B0",
+                PURPLE = "#DAADF0",
+                ORANGE = "#FCC603",
+                PINK = "#FFBBB2";
+
+            var json = $.getJSON("data/threat_table_2.json")
+                .done(function(data){
+                var data = {
+                    nodes: data.nodes,
+                    edges: data.edges
+                  };
+                var network = new vis.Network(container, data, options);
+              });
+
+            var options = {
+                width: '1900px',
+                height: '800px',
+                physics: true,
+                groups: {
+                    TrustBoundary: {
+                        shape: SHAPE,
+                        color: BLUE,
+                      },
+                Asset: {
+                    shape: SHAPE,
+                    color: YELLOW,
+                  },
+                ThreatActor: {
+                    shape: SHAPE,
+                    color: PINK,
+                  },
+                SecurityControl: {
+                    shape: SHAPE,
+                    color: GREEN,
+                  },
+                Vulnerability: {
+                    shape: SHAPE2,
+                    color: PURPLE,
+                  },
+                Risk: {
+                    shape: SHAPE2,
+                    color: ORANGE,
+                  },
+                },
+              };
+
+            var container = document.getElementById("mynetwork3");
+        </script>
+    </body>
+</html>

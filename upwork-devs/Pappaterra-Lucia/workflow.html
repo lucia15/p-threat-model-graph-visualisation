@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+</html>
+    <head>
+        <meta charset="utf-8"/>
+        <title>Workflow</title>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.js"></script>
+        <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.css">
+    </head>
+
+    <body>
+        <p>Workflow</p>
+	      <div id="mynetwork"> </div>
+        <script type="text/javascript">
+            var SHAPE = "circle", //"box", //"square"
+    		        SHAPE2 = "box",
+    		        BLUE = "#99CDFF",
+    		        YELLOW = "#FEEBA7",
+    		        GREEN = "#C6E7B0",
+    		        PURPLE = "#DAADF0",
+    		        ORANGE = "#FCC603",
+    		        PINK = "#FFBBB2",
+    	          BLACK = "#2B1B17";
+
+            // create an array with nodes
+            var nodes = new vis.DataSet([
+                // Trust Boundary ID
+                { id: 1000, label: "Trust \nBoundary", color: BLUE, shape: SHAPE },
+                // Asset ID
+                { id: 1001, label: "Asset", color: YELLOW, shape: SHAPE },
+                // Threat Actor ID
+                { id: 1002, label: "Threat \nActor", color: PINK, shape: SHAPE },
+                // Security Control ID
+                { id: 1003, label: "Security \nControl", color: GREEN, shape: SHAPE },
+                // Vulnerability
+                { id: 1004, label: "Vulnerability", color: PURPLE, shape: SHAPE2 },
+                //Risk
+                { id: 1005, label: "Risk", color: ORANGE, shape: SHAPE2 },
+              ]);
+
+           // create an array with edges
+           var edges = new vis.DataSet([
+               {id: 47, from: 1000, to: 1002, label: "Threat", arrows: "to", color: BLACK },
+               {id: 48, from: 1001, to: 1002, label: "Threat", arrows: "to", color: BLACK },
+               {id: 49, from: 1002, to: 1004, label: "Skills", arrows: "to", color: BLACK },
+               {id: 50, from: 1004, to: 1005, arrows: "to", color: BLACK },
+               {id: 51, from: 1005, to: 1003, label: "Risk Possibility \nRisk Impact \nRisk Level", arrows: "to", color: BLACK },
+             ]);
+
+          // create a network
+           var container = document.getElementById("mynetwork");
+
+           var data = {
+               nodes: nodes,
+               edges: edges,
+             };
+
+           var options = {
+               width: '1900px',
+               height: '400px',
+               locale: 'en',
+               physics: false,
+               interaction: {
+                   hover:true,
+                   tooltipDelay: 300
+                 },
+               layout: {
+                   randomSeed: 1,
+                   improvedLayout: true,
+                   hierarchical: {
+                       enabled: true,
+                       direction: 'LR',
+                       nodeSpacing: 200,
+                       levelSeparation: 250,
+                       sortMethod: 'directed',
+                     },
+                   },
+                 };
+           var network = new vis.Network(container, data, options);
+        </script>
+    </body>
+</html>
